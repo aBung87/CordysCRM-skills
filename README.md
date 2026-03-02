@@ -65,6 +65,10 @@ cordys crm members '{"current":1,"pageSize":50,"combineSearch":{"searchMode":"AN
 cordys crm follow plan lead '{"sourceId":"927627065163785","current":1,"pageSize":10,"keyword":"","status":"ALL","myPlan":false}'
 cordys crm follow record account '{"sourceId":"1751888184018919","current":1,"pageSize":10,"keyword":"","myPlan":false}'
 
+# 查询 客户｜商机 联系人
+cordys crm contact opportunity '商机id'
+cordys crm contact account '客户id'
+
 # 原始 API 调用
 cordys raw GET /settings/fields?module=account
 ```

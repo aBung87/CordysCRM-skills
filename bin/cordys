@@ -83,6 +83,11 @@ crm_get() {
   api GET "${crm_base}/${module}/${id}"
 }
 
+crm_contact() {
+  local module="$1" id="$2"
+  api GET "${crm_base}/${module}/contact/list/${id}"
+}
+
 crm_page() {
   local module="$1"
   shift
@@ -160,9 +165,7 @@ CRM 操作:
   crm members <部门IDs>             获取部门成员列表
   crm follow <plan|record> <模块> [关键词|JSON]  查询跟进计划或跟进记录
   crm product [关键词|JSON]      查询产品列表
-
-原始 API:
-  raw <方法> <路径> [curl参数...]
+  crm contact <模块> <ID>             获取联系人列表
 
 示例:
   cordys crm view lead
@@ -174,6 +177,10 @@ CRM 操作:
   cordys crm follow plan lead '{"sourceId":"927627065163785","current":1,"pageSize":10,"keyword":"","status":"ALL","myPlan":false}'
   cordys crm follow record account '{"sourceId":"1751888184018919","current":1,"pageSize":10,"keyword":"","myPlan":false}'
   cordys crm product "测试"
+  cordys crm contact account '927627065163785'
+
+原始 API:
+  raw <方法> <路径> [curl参数...]
   cordys raw GET /settings/fields?module=account
 
 环境变量要求:
@@ -200,6 +207,7 @@ case "$cmd" in
       org)     crm_org ;;
       product)  crm_product "$@" ;;
       members) crm_members "$@" ;;
+      contact) crm_contact "$@" ;;
       follow)
         kind="${1:-}"; shift || die "follow 需要 plan 或 record"
         case "${kind}" in

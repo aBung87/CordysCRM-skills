@@ -30,8 +30,15 @@ cordys crm get lead 1234567890
 cordys crm search opportunity '{"current":1,"pageSize":30,"combineSearch":{"searchMode":"AND","conditions":[]},"keyword":"测试","filters":[]}'
 cordys crm follow plan lead '{"sourceId":"927627065163785","current":1,"pageSize":10,"keyword":"","status":"ALL","myPlan":false}'
 cordys crm follow record account '{"sourceId":"1751888184018919","current":1,"pageSize":10,"keyword":"","myPlan":false}'
+cordys crm contact opportunity '商机id'
+cordys crm contact account '客户id'
 cordys raw GET /settings/fields?module=account
 ```
+
+## 父资源联系人
+当用户表达“查某条商机/客户的联系人”时，映射到 `cordys crm contact <parent> <id>`，`<parent>` 可选 `opportunity` 或 `account`，`<id>` 填入对应记录 ID；其余 key=value 参数会被当作查询串（如 `keyword=张`、`pageSize=20`）。
+
+如果用户只说“某商机的联系人”或“客户联系人列表”，优先使用这个命令并说明它走的是 `GET /{parent}/contact/list/{id}` 这个通用接口。
 
 ## 跟进计划与记录（自然语言 -> CLI）
 当用户想要查看某条潜在客户、客户或商机的跟进计划/记录时，用 `follow plan|record`，示例命令如下：
@@ -49,7 +56,6 @@ cordys crm follow record <module> '{"sourceId":"<resourceId>","current":1,"pageS
 - “关键词‘合同’筛出与 opportunity 相关的跟进记录。”
 
 如果用户以中文描述“跟进计划”“跟进记录”，优先将意图映射到 `cordys crm follow plan` 或 `follow record`，并补全 body（`sourceId`、`status`/`myPlan`）后再调用。
-
 ## 环境变量（必须）
 ```bash
 CORDYS_ACCESS_KEY=xxx
