@@ -9,6 +9,7 @@ description: |
     - 自动补全 JSON 参数
     - 自动构造 filters / sort / combineSearch
     - 自动补充分页默认值
+    - 支持“查询全部/全部导出/拉全量”等语义下的自动翻页拉取
     - 支持二级模块（如 contract/payment-plan）
 
 ---
@@ -47,6 +48,7 @@ Python 版本仅在以下情况使用：
 | 场景      | 建议命令                                              | 备注                                                     |
 |---------|---------------------------------------------------|--------------------------------------------------------|
 | 列表或分页查看 | `cordys crm page <module> ["keyword"]`            | 若用户只提关键词，会自动构造 `{keyword:..., current:1, pageSize:30}` |
+| 查询全部/拉全量 | `cordys crm page <module> <JSON body>`            | 从 `current=1` 开始循环请求：每取一页先回传该页，再请求下一页，直到无更多数据 |
 | 搜索      | `cordys crm search <module> <JSON body>`          | 需 `combineSearch`、`filters`、`sort`，可补全默认值              |
 | 详情      | `cordys crm get <module> <id>`                    | 直接拉取记录                                                 |
 | 跟进计划或记录 | `cordys crm follow plan 或 record <module> <body>` | `body` 应包含 `sourceId`，计划还需要 `status`/`myPlan` |
@@ -57,6 +59,26 @@ Python 版本仅在以下情况使用：
 - 过滤器格式为 `{"field":"字段","operator":"equals","value":"值"}`，排序格式为 `{"field":"desc"}`。
 - 支持二级模块（例如 `contract/payment-plan`、`contract/payment-record`），CLI 命令形式仍为 `cordys crm page <module>`。
 - `cordys raw` 可以按原始 GET/POST 访问 `/settings/fields`、`/contract/business-title` 等非标准接口。
+
+## 全量查询（自动翻页）
+当用户表达“全部数据 / 拉全量 / 查完所有页 / 全部导出”时，按以下策略执行：
+
+1. 优先走分页接口（`page` 或 `search`），不要一次性假设单页可返回全部。
+2. 初始化分页参数：`current=1`，`pageSize` 默认 50（用户指定则用用户值，上限按接口限制）。
+3. 在后台循环请求下一页；每成功拿到一页，先向用户返回该页摘要/明细，再继续下一页。
+4. 停止条件任一满足即可：
+   - 返回列表为空
+   - 返回数量 `< pageSize`
+   - 已达到返回体中的总页数/总条数字段（若接口提供）
+5. 每页都保留用户原始筛选条件（`keyword` / `filters` / `combineSearch` / `sort`），仅递增 `current`。
+6. 若总量过大，先告知预计页数并建议用户限制条件；用户坚持全量时继续翻页。
+7. 任一页报错时，返回“已完成页数 + 失败页 + 错误信息”，并提示是否从失败页继续。
+
+对外回复建议格式：
+- `第 N/M 页`（若 M 未知则写 `第 N 页`）
+- `本页条数`
+- `关键字段摘要`
+- 最后一页追加 `✅ 全部查询完成，总计 X 条`
 
 ## 常用示例
 ```bash
@@ -91,6 +113,7 @@ CORDYS_CRM_DOMAIN=https://your-cordys-domain
 
 ## 助手判断意图的提示词
 - “列表”/“分页查看”：映射到 `page` 指令；可补上关键词或 filters
+- “查询全部”/“全部数据”/“拉全量”/“查完所有页”：触发“自动翻页”流程（循环 `current`）
 - “搜索”/“筛选”：使用 `search`，补齐 JSON body
 - “查看详情”：用 `get` + 决定的 ID
 - “跟进”：「跟进计划」→ `follow plan`，「跟进记录」→ `follow record`
