@@ -15,17 +15,9 @@ fi
 
 echo "最新版本：$LATEST_TAG"
 
-# 如果目标目录已存在，提示用户是否覆盖
+# 如果目标目录已存在，直接删除并覆盖
 if [ -d "$INSTALL_DIR" ]; then
-  echo "目标目录已存在：$INSTALL_DIR"
-  echo "警告：此操作将覆盖现有的文件！"
-  read -n 1 -p "确定要覆盖已有的 skills 目录吗？[y/n]: " user_input
-  echo  # 强制换行
-  if [[ "$user_input" != "y" && "$user_input" != "Y" ]]; then
-    echo "安装取消。"
-    exit 0
-  fi
-  echo "正在删除并覆盖现有目录..."
+  echo "目标目录已存在，正在删除并覆盖现有目录..."
   rm -rf "$INSTALL_DIR"
 fi
 
