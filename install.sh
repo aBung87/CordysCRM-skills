@@ -15,9 +15,15 @@ fi
 
 echo "最新版本：$LATEST_TAG"
 
-# 如果目标目录已存在，先删除它
+# 如果目标目录已存在，提示用户是否覆盖
 if [ -d "$INSTALL_DIR" ]; then
-  echo "目标目录已存在，删除原有安装目录..."
+  echo "目标目录已存在：$INSTALL_DIR"
+  read -p "确定要覆盖已有的 skills 目录吗？[yes/no]: " user_input
+  if [[ "$user_input" != "yes" ]]; then
+    echo "安装取消。"
+    exit 0
+  fi
+  echo "正在删除并覆盖现有目录..."
   rm -rf "$INSTALL_DIR"
 fi
 
@@ -25,8 +31,9 @@ fi
 echo "正在克隆 CordysCRM-skills 仓库..."
 git clone --branch "$LATEST_TAG" "$REPO_URL" "$INSTALL_DIR"
 
-# 复制 skills 目录到目标路径
-echo "正在复制 skills 目录..."
-cp -R "$INSTALL_DIR/skills" "$INSTALL_DIR"
+# 强制覆盖 skills 目录
+echo "正在覆盖 skills 目录..."
+rm -rf "$INSTALL_DIR/skills"  # 删除已存在的 skills 目录
+cp -R "$INSTALL_DIR/skills" "$INSTALL_DIR"  # 复制新的 skills 目录
 
 echo "安装完成！"
