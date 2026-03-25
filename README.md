@@ -47,6 +47,10 @@ CordysCRM-skills/
 ## 快速开始
 
 ```bash
+# 通过 Clawdhub 安装（推荐，自动处理依赖和更新）
+clawdhub install cordys-crm
+
+# 直接使用安装脚本（适合有 Bash 环境的用户）
 curl -fsSL https://raw.githubusercontent.com/1Panel-dev/CordysCRM-skills/main/install.sh | bash
 ```
 ## 手动安装
@@ -54,8 +58,8 @@ curl -fsSL https://raw.githubusercontent.com/1Panel-dev/CordysCRM-skills/main/in
 ```bash
 # 克隆 CordysCRM-skills 仓库到 OpenClaw 的 skills 目录 （如果已有同名目录请先备份或删除）版本号可根据需要调整
 git clone --branch main https://github.com/1Panel-dev/CordysCRM-skills ~/.openclaw/workspace/skills/CordysCRM-skills
-# 将克隆的目录重命名为 cordys.sh-crm
-mv ~/.openclaw/workspace/skills/CordysCRM-skills/skills ~/.openclaw/workspace/skills/cordys.sh-crm
+# 将克隆的目录重命名为 cordys-crm
+mv ~/.openclaw/workspace/skills/CordysCRM-skills/skills ~/.openclaw/workspace/skills/cordys-crm
 # 删除克隆的仓库目录
 rm -rf ~/.openclaw/workspace/skills/CordysCRM-skills
 
@@ -63,8 +67,8 @@ rm -rf ~/.openclaw/workspace/skills/CordysCRM-skills
 ## 环境配置
 
 ```bash 
-# 将克隆的目录重命名为 cordys.sh-crm
-mv ~/.openclaw/workspace/skills/cordys.sh-crm/.env.example ~/.openclaw/workspace/skills/cordys.sh-crm/.env
+# 将克隆的目录重命名为 cordys-crm
+vi ~/.openclaw/workspace/skills/cordys-crm/.env
 
 # 编辑 .env 文件，配置 Cordys CRM 的 API 访问地址和认证信息
 
@@ -79,7 +83,7 @@ mv ~/.openclaw/workspace/skills/cordys.sh-crm/.env.example ~/.openclaw/workspace
 
 ```bash
 
-cd ~/.openclaw/workspace/skills/cordys.sh-crm
+cd ~/.openclaw/workspace/skills/cordys-crm
 
 # 运行 CLI 脚本，查看帮助信息
 ./scripts/cordys.sh help

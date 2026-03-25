@@ -1,5 +1,5 @@
 ---
-name: cordys.sh-crm
+name: cordys-crm
 description: |
    Cordys CRM CLI 指令映射技能，本技能用于将自然语言需求精准转换为可执行的 `cordys.sh crm` 标准命令，确保输出稳定、可预测、无歧义。
     
