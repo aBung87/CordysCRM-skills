@@ -3,7 +3,7 @@
 # 设置仓库地址和目标安装路径
 REPO_URL="https://github.com/1Panel-dev/CordysCRM-skills"
 INSTALL_DIR="$HOME/.openclaw/workspace/skills/cordys-crm"
-TEMP_DIR="$HOME/.openclaw/workspace/skills/CordysCRM-skills"
+TEMP_DIR="$HOME/.openclaw/workspace/skills"
 
 # 获取最新的 Git 标签
 LATEST_TAG=$(curl -s https://api.github.com/repos/1Panel-dev/CordysCRM-skills/releases/latest | jq -r .tag_name)
