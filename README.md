@@ -44,22 +44,45 @@ CordysCRM-skills/
         └── cordys.py
 ```
 
-## 如何在 OpenClaw 中安装
+## 快速开始
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/1Panel-dev/CordysCRM-skills/main/install.sh | bash
 ```
-
-然后确认 `scripts/cordys` 可执行：
+## 手动安装
 
 ```bash
-./scripts/cordys help
+# 克隆 CordysCRM-skills 仓库到 OpenClaw 的 skills 目录 （如果已有同名目录请先备份或删除）版本号可根据需要调整
+git clone --branch v1.0.0 https://github.com/1Panel-dev/CordysCRM-skills ~/.openclaw/workspace/skills/
+# 将克隆的目录重命名为 cordys-crm
+mv ~/.openclaw/workspace/skills/CordysCRM-skills/skills ~/.openclaw/workspace/skills/cordys-crm
+
+```
+## 环境配置
+
+```bash 
+# 将克隆的目录重命名为 cordys-crm
+mv ~/.openclaw/workspace/skills/cordys-crm/.env.example ~/.openclaw/workspace/skills/cordys-crm/.env
+
+# 编辑 .env 文件，配置 Cordys CRM 的 API 访问地址和认证信息
+
+# 示例：
+# CORDYS_BASE_URL=https://your-cordys-instance.com
+# CORDYS_API_KEY=your_api_key
+# CORDYS_API_SECRET=your_api_secret
+
 ```
 
-## 说明
+## 验证
 
-- `SKILL.md` 中的内容由 OpenClaw 读取，用于指导 AI 生成命令与流程。
-- `references/crm-api.md` 提供 Cordys API 的字段、示例与约定，只有在 skill 触发时才会被加载。
-- `scripts/` 下提供了 Shell 与 Python 两种 CLI 实现，OpenClaw 会依照环境优先选择 Shell 版本，遇到兼容问题会 fallback 到 Python 版本。
+```bash
 
-如需本地测试或打包，请以 `skills/` 为根，使用 `scripts/package_skill.py skills/` 生成 `.skill` 文件。
+cd ~/.openclaw/workspace/skills/cordys-crm
+
+# 运行 CLI 脚本，查看帮助信息
+./scripts/cordys help
+
+# 运行示例命令，查看线索列表
+./scripts/cordys page lead
+
+```
