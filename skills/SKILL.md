@@ -136,9 +136,6 @@ cordys crm search opportunity '{"current":1,"pageSize":30,"combineSearch":{"sear
 # 跟进计划
 cordys crm follow plan account '{"sourceId":"123","current":1,"pageSize":10,"status":"UNFINISHED","myPlan":false}'
 
-# 原始 API 调用
-cordys raw GET /settings/fields?module=account
-
 # 获取组织架构
 cordys crm org
 
@@ -147,6 +144,49 @@ cordys crm product "测试产品"
 
 # 获取联系人
 cordys crm contact account "927627065163785"
+
+```
+
+## 二级模块支持
+
+Cordys CRM 部分资源属于二级模块。
+
+例如：
+
+```bash
+
+ #查询回款计划的分页列表，支持传入关键词/JSON body，实际上调用的是 POST /contract/payment-plan/page。
+ cordys crm page contract/payment-plan
+ 
+ #查询发票的分页列表，通过 POST /invoice/page 获取，每个条件都可以通过 filters 精细控制。
+ cordys crm page invoice 
+ 
+ #检索工商抬头列表，同样支持关键词/filters。
+ cordys crm page contract/business-title 
+ 
+ #查看回款记录列表，可结合关键词、filters 或 viewId 进行精细筛选。
+ cordys crm page contract/payment-record 
+ 
+ # 查看线索池中的线索，可结合关键词、filters 或 viewId 进行精细筛选，关键属性是 poolId 通过 lead-pool 接口获取。
+ cordys crm page pool/lead 
+ 
+ #查看线索池中的线索，可结合关键词、filters 或 viewId 进行精细筛选，关键属性是 poolId 通过 account-pool 接口获取。
+ cordys crm page pool/account 
+ 
+```
+
+## 深度 API 调用
+
+查看字段
+
+```bash
+cordys raw GET /settings/fields?module=account
+```
+
+复杂过滤示例：
+
+```bash
+cordys crm search opportunity '{"filters":[{"field":"Stage","operator":"equals","value":"Closed Won"}]}'
 ```
 
 ## 环境变量（必须）
