@@ -73,9 +73,9 @@ vi ~/.openclaw/workspace/skills/cordys-crm/.env
 # 编辑 .env 文件，配置 Cordys CRM 的 API 访问地址和认证信息
 
 # 示例：
-# CORDYS_BASE_URL=https://your-cordys-instance.com
-# CORDYS_API_KEY=your_api_key
-# CORDYS_API_SECRET=your_api_secret
+# CORDYS_CRM_DOMAIN=https://your-cordys-instance.com
+# CORDYS_ACCESS_KEY=your_access_key
+# CORDYS_SECRET_KEY=your_secret_key
 
 ```
 
