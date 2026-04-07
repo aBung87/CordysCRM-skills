@@ -1,6 +1,6 @@
 {
   "name": "cordys-crm",
-  "description": "Cordys CRM CLI 指令映射技能，支持将自然语言高效转换为标准 `cordys crm` 命令",
+  "description": "Cordys CRM CLI 指令映射技能，支持将自然语言高效转换为标准 `cordys crm` 命令，具备意图识别、模块匹配、参数补全及分页与全量查询处理能力",
   "version": "1.0.2",
   "author": "fit2-zhao",
   "license": "MIT",
@@ -10,13 +10,14 @@
       "CORDYS_SECRET_KEY",
       "CORDYS_CRM_DOMAIN"
     ],
-    "optional": []
+    "optional": [],
+    "notes": "可以通过系统环境变量或技能目录中的.env文件提供。.env文件包含敏感信息，不应提交到版本控制。"
   },
   "security": {
     "requiresSecrets": true,
     "sensitiveEnvironment": true,
     "externalNetworkAccess": true,
-    "notes": "此技能需要访问Cordys CRM API，使用X-Access-Key和X-Secret-Key进行身份验证。请确保只向可信的CORDYS_CRM_DOMAIN发送请求。"
+    "notes": "此技能需要访问Cordys CRM API，使用X-Access-Key和X-Secret-Key进行身份验证。请确保只向可信的CORDYS_CRM_DOMAIN发送请求。技能会读取技能目录中的.env文件（如果存在），这可能会带来安全风险。"
   },
   "dependencies": {
     "system": ["curl", "python3"],

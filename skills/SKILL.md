@@ -1,6 +1,17 @@
 ---
 name: cordys-crm
 description: Cordys CRM CLI 指令映射技能，支持将自然语言高效转换为标准 `cordys crm` 命令，具备意图识别、模块匹配、参数补全及分页与全量查询处理能力，输出简洁稳定、无歧义。
+environment:
+  required:
+    - CORDYS_ACCESS_KEY
+    - CORDYS_SECRET_KEY
+    - CORDYS_CRM_DOMAIN
+  optional: []
+security:
+  requiresSecrets: true
+  sensitiveEnvironment: true
+  externalNetworkAccess: true
+  notes: 此技能需要访问Cordys CRM API，使用X-Access-Key和X-Secret-Key进行身份验证。请确保只向可信的CORDYS_CRM_DOMAIN发送请求。
 ---
 
 # Cordys CRM CLI 使用说明
@@ -24,12 +35,25 @@ clawdhub install cordys-crm
 ```
 
 ## 环境变量（必须）
+
+此技能需要以下环境变量才能正常工作。这些变量可以通过两种方式提供：
+
+1. **系统环境变量**：直接设置在当前shell环境中
+2. **`.env`文件**：在技能目录中创建`.env`文件（注意：此文件包含敏感信息，不应提交到版本控制）
+
+### 必需变量
 ```bash
-# 从 `.env` 文件或环境变量中读取，包含访问 Cordys CRM API 的必要信息：
+# 访问 Cordys CRM API 的必要信息：
 CORDYS_ACCESS_KEY=你的 Access Key
 CORDYS_SECRET_KEY=你的 Secret Key
 CORDYS_CRM_DOMAIN=https://your-cordys-domain
 ```
+
+### 安全注意事项
+- `.env`文件中的凭证是高度敏感的，应妥善保管
+- 建议使用环境变量而非`.env`文件，以避免凭证泄露
+- 定期轮换API密钥
+- 确保`CORDYS_CRM_DOMAIN`指向可信的Cordys CRM实例
 
 ## ⚠️ 安全警告
 
