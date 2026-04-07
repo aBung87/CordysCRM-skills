@@ -30,6 +30,18 @@ CORDYS_ACCESS_KEY=你的 Access Key
 CORDYS_SECRET_KEY=你的 Secret Key
 CORDYS_CRM_DOMAIN=https://your-cordys-domain
 ```
+
+## ⚠️ 安全警告
+
+此技能需要敏感的环境变量（API密钥和域名）。请注意以下安全事项：
+
+1. **凭证安全**：`CORDYS_ACCESS_KEY` 和 `CORDYS_SECRET_KEY` 是敏感凭证，请妥善保管
+2. **域名验证**：确保 `CORDYS_CRM_DOMAIN` 指向可信的Cordys CRM实例
+3. **网络请求**：此技能会向指定的域名发送HTTP请求，包含您的API凭证
+4. **`raw`命令风险**：使用 `cordys.sh raw` 命令时，脚本会将您的凭证发送到指定的URL。请勿向不受信任的域名发送请求
+5. **环境隔离**：建议在受控环境中使用此技能，避免凭证泄露
+
+建议仅在信任的Cordys CRM实例上使用此技能，并定期轮换API密钥。
 ## CLI 版本选择
 
 本项目提供两个版本 CLI：

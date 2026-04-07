@@ -62,6 +62,33 @@ def check_keys() -> None:
     if not CORDYS_SECRET_KEY:
         die("未设置 CORDYS_SECRET_KEY")
 
+def warn(message: str) -> None:
+    """打印警告信息"""
+    print(f"⚠️  警告: {message}", file=sys.stderr)
+
+def validate_url(url: str) -> bool:
+    """验证URL是否指向可信的Cordys CRM域名"""
+    from urllib.parse import urlparse
+    
+    # 解析URL
+    parsed = urlparse(url)
+    if not parsed.netloc:
+        return True  # 不是完整URL，可能是相对路径
+    
+    # 从配置的CORDYS_CRM_DOMAIN中提取可信域名
+    trusted_parsed = urlparse(CORDYS_CRM_DOMAIN)
+    trusted_domain = trusted_parsed.netloc or CORDYS_CRM_DOMAIN
+    
+    # 检查域名是否匹配（支持子域名）
+    request_domain = parsed.netloc
+    
+    if request_domain != trusted_domain and not request_domain.endswith(f".{trusted_domain}"):
+        warn(f"目标域名 '{request_domain}' 与配置的Cordys CRM域名 '{trusted_domain}' 不匹配")
+        warn("这可能会泄露您的API凭证！")
+        return False
+    
+    return True
+
 
 def page_payload(keyword: str = "") -> Dict[str, Any]:
     """生成分页请求的标准 payload"""
@@ -220,6 +247,17 @@ def crm_members(json_data: str) -> str:
 def raw_api(method: str, path: str, *args) -> str:
     """执行原始 API 调用"""
     if path.startswith("http"):
+        # 验证URL域名
+        if not validate_url(path):
+            print("❌ 拒绝请求：目标域名与配置的Cordys CRM域名不匹配", file=sys.stderr)
+            print(f"   配置的域名: {CORDYS_CRM_DOMAIN}", file=sys.stderr)
+            print("   如需强制发送，请设置环境变量 CORDYS_ALLOW_UNTRUSTED=1", file=sys.stderr)
+            
+            if os.environ.get("CORDYS_ALLOW_UNTRUSTED", "0") != "1":
+                sys.exit(1)
+            else:
+                warn("已启用不受信任域名模式，继续发送请求...")
+        
         url = path
     else:
         url = f"{CORDYS_CRM_DOMAIN}{path}"

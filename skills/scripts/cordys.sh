@@ -19,10 +19,41 @@ CORDYS_CRM_DOMAIN="${CORDYS_CRM_DOMAIN:-https://www.cordys.cn}"
 # ── 辅助函数 ───────────────────────────────────────────────────────────
 die()  { echo "错误: $*" >&2; exit 1; }
 info() { echo ":: $*" >&2; }
+warn() { echo "⚠️  警告: $*" >&2; }
 
 check_keys() {
   [[ -n "${CORDYS_ACCESS_KEY:-}" ]] || die "未设置 CORDYS_ACCESS_KEY"
   [[ -n "${CORDYS_SECRET_KEY:-}" ]] || die "未设置 CORDYS_SECRET_KEY"
+}
+
+# 验证URL是否指向可信的Cordys CRM域名
+validate_url() {
+  local url="$1"
+  
+  # 提取域名部分
+  local domain
+  if [[ "$url" =~ ^https?://([^/]+) ]]; then
+    domain="${BASH_REMATCH[1]}"
+  else
+    return 0  # 不是完整URL，可能是相对路径
+  fi
+  
+  # 从配置的CORDYS_CRM_DOMAIN中提取可信域名
+  local trusted_domain
+  if [[ "$CORDYS_CRM_DOMAIN" =~ ^https?://([^/]+) ]]; then
+    trusted_domain="${BASH_REMATCH[1]}"
+  else
+    trusted_domain="$CORDYS_CRM_DOMAIN"
+  fi
+  
+  # 检查域名是否匹配（支持子域名）
+  if [[ "$domain" != "$trusted_domain" ]] && [[ "$domain" != *".$trusted_domain" ]]; then
+    warn "目标域名 '$domain' 与配置的Cordys CRM域名 '$trusted_domain' 不匹配"
+    warn "这可能会泄露您的API凭证！"
+    return 1
+  fi
+  
+  return 0
 }
 
 page_payload() {
@@ -148,6 +179,19 @@ raw_api() {
   shift 2
 
   if [[ "$path" == http* ]]; then
+    # 验证URL域名
+    if ! validate_url "$path"; then
+      echo "❌ 拒绝请求：目标域名与配置的Cordys CRM域名不匹配" >&2
+      echo "   配置的域名: $CORDYS_CRM_DOMAIN" >&2
+      echo "   如需强制发送，请设置环境变量 CORDYS_ALLOW_UNTRUSTED=1" >&2
+      
+      if [[ "${CORDYS_ALLOW_UNTRUSTED:-0}" != "1" ]]; then
+        exit 1
+      else
+        warn "已启用不受信任域名模式，继续发送请求..."
+      fi
+    fi
+    
     api "$method" "$path" "$@"
   else
     api "$method" "${CORDYS_CRM_DOMAIN}${path}" "$@"

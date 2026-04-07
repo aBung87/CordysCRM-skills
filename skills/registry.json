@@ -1,0 +1,27 @@
+{
+  "name": "cordys-crm",
+  "description": "Cordys CRM CLI 指令映射技能，支持将自然语言高效转换为标准 `cordys crm` 命令",
+  "version": "1.0.2",
+  "author": "fit2-zhao",
+  "license": "MIT",
+  "environment": {
+    "required": [
+      "CORDYS_ACCESS_KEY",
+      "CORDYS_SECRET_KEY",
+      "CORDYS_CRM_DOMAIN"
+    ],
+    "optional": []
+  },
+  "security": {
+    "requiresSecrets": true,
+    "sensitiveEnvironment": true,
+    "externalNetworkAccess": true,
+    "notes": "此技能需要访问Cordys CRM API，使用X-Access-Key和X-Secret-Key进行身份验证。请确保只向可信的CORDYS_CRM_DOMAIN发送请求。"
+  },
+  "dependencies": {
+    "system": ["curl", "python3"],
+    "python": []
+  },
+  "capabilities": ["exec", "network"],
+  "tags": ["crm", "cordys", "business", "api"]
+}
