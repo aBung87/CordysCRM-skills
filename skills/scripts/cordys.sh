@@ -20,6 +20,10 @@ die() {
   exit 1
 }
 
+warn() {
+  echo "Warning: $*" >&2
+}
+
 check_keys() {
   [[ -n "${CORDYS_ACCESS_KEY:-}" ]] || die "CORDYS_ACCESS_KEY is not set"
   [[ -n "${CORDYS_SECRET_KEY:-}" ]] || die "CORDYS_SECRET_KEY is not set"
@@ -31,7 +35,6 @@ python_cmd() {
     return
   fi
   if command -v python3 >/dev/null 2>&1; then
-    # On Windows Git Bash, python3 often resolves to the WindowsApps stub.
     if python3 -c "import sys" >/dev/null 2>&1; then
       echo python3
       return
@@ -42,6 +45,47 @@ python_cmd() {
 
 is_json_like() {
   [[ "${1:-}" =~ ^[[:space:]]*[\{\[] ]]
+}
+
+trusted_domain() {
+  if [[ "$CORDYS_CRM_DOMAIN" =~ ^https?://([^/]+) ]]; then
+    echo "${BASH_REMATCH[1]}"
+  else
+    echo "$CORDYS_CRM_DOMAIN"
+  fi
+}
+
+validate_url() {
+  local url="$1"
+  local domain
+  if [[ "$url" =~ ^https?://([^/]+) ]]; then
+    domain="${BASH_REMATCH[1]}"
+  else
+    return 0
+  fi
+
+  local allowed_domain
+  allowed_domain="$(trusted_domain)"
+  [[ "$domain" == "$allowed_domain" || "$domain" == *".$allowed_domain" ]]
+}
+
+guard_untrusted_url() {
+  local url="$1"
+  if validate_url "$url"; then
+    return 0
+  fi
+
+  local request_domain allowed_domain
+  request_domain="$(echo "$url" | sed -E 's#^https?://([^/]+).*$#\1#')"
+  allowed_domain="$(trusted_domain)"
+  local message="target domain '$request_domain' does not match configured Cordys CRM domain '$allowed_domain'"
+
+  if [[ "${CORDYS_ALLOW_UNTRUSTED:-0}" == "1" ]]; then
+    warn "$message; continuing because CORDYS_ALLOW_UNTRUSTED=1"
+    return 0
+  fi
+
+  die "$message; set CORDYS_ALLOW_UNTRUSTED=1 to bypass"
 }
 
 page_payload() {
@@ -161,7 +205,11 @@ raw_api() {
   shift 2 || true
   local body="${1:-}"
   local url="$path"
-  [[ "$path" == http* ]] || url="${CORDYS_CRM_DOMAIN}${path}"
+  if [[ "$path" == http* ]]; then
+    guard_untrusted_url "$path"
+  else
+    url="${CORDYS_CRM_DOMAIN}${path}"
+  fi
   if [[ -n "$body" ]]; then
     api "$method" "$url" -d "$body"
   else

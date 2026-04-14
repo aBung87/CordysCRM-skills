@@ -36,6 +36,10 @@ def die(message: str) -> None:
     raise SystemExit(1)
 
 
+def warn(message: str) -> None:
+    print(f"Warning: {message}", file=sys.stderr)
+
+
 def check_keys() -> None:
     if not CORDYS_ACCESS_KEY:
         die("CORDYS_ACCESS_KEY is not set")
@@ -43,8 +47,43 @@ def check_keys() -> None:
         die("CORDYS_SECRET_KEY is not set")
 
 
+def trusted_domain() -> str:
+    parsed = parse.urlparse(CORDYS_CRM_DOMAIN)
+    domain = parsed.netloc or CORDYS_CRM_DOMAIN
+    return domain.replace("http://", "").replace("https://", "").split("/", 1)[0]
+
+
+def validate_url(url: str) -> bool:
+    parsed = parse.urlparse(url)
+    if not parsed.netloc:
+        return True
+
+    request_domain = parsed.netloc
+    allowed_domain = trusted_domain()
+    return request_domain == allowed_domain or request_domain.endswith(f".{allowed_domain}")
+
+
+def guard_untrusted_url(url: str) -> None:
+    if validate_url(url):
+        return
+
+    request_domain = parse.urlparse(url).netloc
+    allowed_domain = trusted_domain()
+    message = (
+        f"target domain '{request_domain}' does not match configured "
+        f"Cordys CRM domain '{allowed_domain}'"
+    )
+
+    if os.environ.get("CORDYS_ALLOW_UNTRUSTED", "0") == "1":
+        warn(f"{message}; continuing because CORDYS_ALLOW_UNTRUSTED=1")
+        return
+
+    die(f"{message}; set CORDYS_ALLOW_UNTRUSTED=1 to bypass")
+
+
 def build_url(path: str) -> str:
     if path.startswith("http://") or path.startswith("https://"):
+        guard_untrusted_url(path)
         return path
     if not path.startswith("/"):
         path = "/" + path
