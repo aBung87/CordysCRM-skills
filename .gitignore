@@ -1,3 +1,5 @@
 *.env
 .token_cache
 .idea/
+__pycache__/
+*.pyc
